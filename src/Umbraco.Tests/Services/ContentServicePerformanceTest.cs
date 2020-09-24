@@ -2,17 +2,14 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Moq;
 using NUnit.Framework;
 using Umbraco.Core;
 using Umbraco.Core.Cache;
 using Umbraco.Core.Composing;
-using Umbraco.Core.Configuration.UmbracoSettings;
-using Umbraco.Core.IO;
+using Umbraco.Core.Configuration.Models;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
 using Umbraco.Core.Persistence.Dtos;
-using Umbraco.Core.Persistence.Repositories;
 using Umbraco.Core.Persistence.Repositories.Implement;
 using Umbraco.Core.PropertyEditors;
 using Umbraco.Core.Scoping;
@@ -43,10 +40,11 @@ namespace Umbraco.Tests.Services
         private DocumentRepository CreateDocumentRepository(IScopeProvider provider)
         {
             var accessor = (IScopeAccessor)provider;
+            var globalSettings = new GlobalSettings();
             var tRepository = new TemplateRepository((IScopeAccessor) provider, AppCaches.Disabled, Logger, TestObjects.GetFileSystemsMock(), IOHelper, ShortStringHelper);
             var tagRepo = new TagRepository(accessor, AppCaches.Disabled, Logger);
             var commonRepository = new ContentTypeCommonRepository(accessor, tRepository, AppCaches, ShortStringHelper);
-            var languageRepository = new LanguageRepository(accessor, AppCaches.Disabled, Logger, TestObjects.GetGlobalSettings());
+            var languageRepository = new LanguageRepository(accessor, AppCaches.Disabled, Logger, Microsoft.Extensions.Options.Options.Create(globalSettings));
             var ctRepository = new ContentTypeRepository(accessor, AppCaches.Disabled, Logger, commonRepository, languageRepository, ShortStringHelper);
             var relationTypeRepository = new RelationTypeRepository(accessor, AppCaches.Disabled, Logger);
             var entityRepository = new EntityRepository(accessor);

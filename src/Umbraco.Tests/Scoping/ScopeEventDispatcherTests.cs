@@ -5,16 +5,17 @@ using NUnit.Framework;
 using Umbraco.Core;
 using Umbraco.Core.Cache;
 using Umbraco.Core.Composing;
+using Umbraco.Core.Configuration.Models;
 using Umbraco.Core.Events;
-using Umbraco.Core.Models;
 using Umbraco.Core.IO;
 using Umbraco.Core.Logging;
-using Umbraco.Core.Scoping;
-using Umbraco.Tests.TestHelpers;
-using Umbraco.Tests.TestHelpers.Entities;
+using Umbraco.Core.Models;
 using Umbraco.Core.Persistence.Mappers;
+using Umbraco.Core.Scoping;
 using Umbraco.Core.Services;
 using Umbraco.Tests.Components;
+using Umbraco.Tests.TestHelpers;
+using Umbraco.Tests.TestHelpers.Entities;
 using Current = Umbraco.Web.Composing.Current;
 
 namespace Umbraco.Tests.Scoping
@@ -34,28 +35,22 @@ namespace Umbraco.Tests.Scoping
 
             var register = TestHelper.GetRegister();
 
-            var composition = new Composition(register, TestHelper.GetMockedTypeLoader(), Mock.Of<IProfilingLogger>(), ComponentTests.MockRuntimeState(RuntimeLevel.Run), TestHelper.GetConfigs(), TestHelper.IOHelper, AppCaches.NoCache);
+            var composition = new Composition(register, TestHelper.GetMockedTypeLoader(), Mock.Of<IProfilingLogger>(), ComponentTests.MockRuntimeState(RuntimeLevel.Run), TestHelper.IOHelper, AppCaches.NoCache);
 
             _testObjects = new TestObjects(register);
 
-            composition.RegisterUnique(factory => new FileSystems(factory, factory.TryGetInstance<ILogger>(), TestHelper.IOHelper, SettingsForTests.GenerateMockGlobalSettings(), TestHelper.GetHostingEnvironment()));
+            var globalSettings = new GlobalSettings();
+            composition.RegisterUnique(factory => new FileSystems(factory, factory.TryGetInstance<ILogger>(), TestHelper.IOHelper, Microsoft.Extensions.Options.Options.Create(globalSettings), TestHelper.GetHostingEnvironment()));
             composition.WithCollectionBuilder<MapperCollectionBuilder>();
-
-            composition.Configs.Add(() => SettingsForTests.DefaultGlobalSettings);
-            composition.Configs.Add(SettingsForTests.GenerateMockContentSettings);
 
             Current.Reset();
             Current.Factory = composition.CreateFactory();
-
-            SettingsForTests.Reset(); // ensure we have configuration
         }
 
         [TearDown]
         public void TearDown()
         {
             Current.Reset();
-
-            SettingsForTests.Reset();
         }
 
         [TestCase(false, true, true)]

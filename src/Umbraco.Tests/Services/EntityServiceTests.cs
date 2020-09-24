@@ -4,10 +4,12 @@ using System.Linq;
 using System.Threading;
 using NUnit.Framework;
 using Umbraco.Core;
+using Umbraco.Core.Configuration.Models;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.Entities;
 using Umbraco.Core.Persistence.DatabaseModelDefinitions;
 using Umbraco.Core.Services;
+using Umbraco.Tests.Common.Builders;
 using Umbraco.Tests.TestHelpers;
 using Umbraco.Tests.TestHelpers.Entities;
 using Umbraco.Tests.Testing;
@@ -31,8 +33,9 @@ namespace Umbraco.Tests.Services
 
             if (_langFr == null && _langEs == null)
             {
-                _langFr = new Language(SettingsForTests.GenerateMockGlobalSettings(), "fr-FR");
-                _langEs = new Language(SettingsForTests.GenerateMockGlobalSettings(), "es-ES");
+                var globalSettings = new GlobalSettings();
+                _langFr = new Language(globalSettings, "fr-FR");
+                _langEs = new Language(globalSettings, "es-ES");
                 ServiceContext.LocalizationService.Save(_langFr);
                 ServiceContext.LocalizationService.Save(_langEs);
             }

@@ -3,8 +3,7 @@ using System.Linq;
 using Moq;
 using NUnit.Framework;
 using Umbraco.Core.Cache;
-using Umbraco.Core.Configuration.UmbracoSettings;
-using Umbraco.Core.IO;
+using Umbraco.Core.Configuration.Models;
 using Umbraco.Core.Models;
 using Umbraco.Core.Persistence.Repositories;
 using Umbraco.Core.Persistence.Repositories.Implement;
@@ -955,10 +954,11 @@ namespace Umbraco.Tests.Persistence.Repositories
         private DocumentRepository CreateDocumentRepository(IScopeProvider provider, out ContentTypeRepository contentTypeRepository)
         {
             var accessor = (IScopeAccessor) provider;
+            var globalSettings = new GlobalSettings();
             var templateRepository = new TemplateRepository(accessor, AppCaches.Disabled, Logger, TestObjects.GetFileSystemsMock(), IOHelper, ShortStringHelper);
             var tagRepository = new TagRepository(accessor, AppCaches.Disabled, Logger);
             var commonRepository = new ContentTypeCommonRepository(accessor, templateRepository, AppCaches.Disabled, ShortStringHelper);
-            var languageRepository = new LanguageRepository(accessor, AppCaches.Disabled, Logger, TestObjects.GetGlobalSettings());
+            var languageRepository = new LanguageRepository(accessor, AppCaches.Disabled, Logger, Microsoft.Extensions.Options.Options.Create(globalSettings));
             contentTypeRepository = new ContentTypeRepository(accessor, AppCaches.Disabled, Logger, commonRepository, languageRepository, ShortStringHelper);
             var relationTypeRepository = new RelationTypeRepository(accessor, AppCaches.Disabled, Logger);
             var entityRepository = new EntityRepository(accessor);
@@ -972,10 +972,11 @@ namespace Umbraco.Tests.Persistence.Repositories
         private MediaRepository CreateMediaRepository(IScopeProvider provider, out MediaTypeRepository mediaTypeRepository)
         {
             var accessor = (IScopeAccessor) provider;
+            var globalSettings = new GlobalSettings();
             var templateRepository = new TemplateRepository(accessor, AppCaches.Disabled, Logger, TestObjects.GetFileSystemsMock(), IOHelper, ShortStringHelper);
             var tagRepository = new TagRepository(accessor, AppCaches.Disabled, Logger);
             var commonRepository = new ContentTypeCommonRepository(accessor, templateRepository, AppCaches.Disabled, ShortStringHelper);
-            var languageRepository = new LanguageRepository(accessor, AppCaches.Disabled, Logger, TestObjects.GetGlobalSettings());
+            var languageRepository = new LanguageRepository(accessor, AppCaches.Disabled, Logger, Microsoft.Extensions.Options.Options.Create(globalSettings));
             mediaTypeRepository = new MediaTypeRepository(accessor, AppCaches.Disabled, Logger, commonRepository, languageRepository, ShortStringHelper);
             var relationTypeRepository = new RelationTypeRepository(accessor, AppCaches.Disabled, Logger);
             var entityRepository = new EntityRepository(accessor);

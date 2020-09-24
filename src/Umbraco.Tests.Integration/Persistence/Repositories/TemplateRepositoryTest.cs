@@ -7,6 +7,7 @@ using Moq;
 using NUnit.Framework;
 using Umbraco.Core;
 using Umbraco.Core.Cache;
+using Umbraco.Core.Configuration.Models;
 using Umbraco.Core.IO;
 using Umbraco.Core.Models;
 using Umbraco.Core.Persistence.Repositories;
@@ -259,10 +260,10 @@ namespace Umbraco.Tests.Integration.Persistence.Repositories
             using (provider.CreateScope())
             {
                 var templateRepository = CreateRepository(provider);
-
+                var globalSettings = new GlobalSettings();
                 var tagRepository = new TagRepository(scopeAccessor, AppCaches.Disabled, Logger);
                 var commonRepository = new ContentTypeCommonRepository(scopeAccessor, templateRepository, AppCaches, ShortStringHelper);
-                var languageRepository = new LanguageRepository(scopeAccessor, AppCaches.Disabled, Logger, GlobalSettings);
+                var languageRepository = new LanguageRepository(scopeAccessor, AppCaches.Disabled, Logger, Microsoft.Extensions.Options.Options.Create(globalSettings));
                 var contentTypeRepository = new ContentTypeRepository(scopeAccessor, AppCaches.Disabled, Logger, commonRepository, languageRepository, ShortStringHelper);
                 var relationTypeRepository = new RelationTypeRepository(scopeAccessor, AppCaches.Disabled, Logger);
                 var entityRepository = new EntityRepository(scopeAccessor);

@@ -22,6 +22,7 @@ using Umbraco.Web.Common.Builder;
 using Umbraco.Web.Common.Controllers;
 using Umbraco.Web.Editors;
 using Microsoft.Extensions.Hosting;
+using Umbraco.Web.BackOffice.Controllers;
 
 namespace Umbraco.Tests.Integration.TestServerTest
 {
@@ -90,6 +91,7 @@ namespace Umbraco.Tests.Integration.TestServerTest
         {
             var url = LinkGenerator.GetUmbracoApiService<T>(methodSelector);
 
+            var backofficeSecurityFactory = GetRequiredService<IBackofficeSecurityFactory>();
             var umbracoContextFactory = GetRequiredService<IUmbracoContextFactory>();
             var httpContextAccessor = GetRequiredService<IHttpContextAccessor>();
 
@@ -104,6 +106,7 @@ namespace Umbraco.Tests.Integration.TestServerTest
                 }
             };
 
+            backofficeSecurityFactory.EnsureBackofficeSecurity();
             umbracoContextFactory.EnsureUmbracoContext();
 
             return url;

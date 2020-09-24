@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Microsoft.Extensions.Options;
 using Umbraco.Core;
 using Umbraco.Core.Composing;
-using Umbraco.Core.Configuration;
+using Umbraco.Core.Configuration.Models;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.Entities;
@@ -144,7 +145,7 @@ namespace Umbraco.Web.Compose
         private void UserServiceUserGroupPermissionsAssigned(Core.Events.SaveEventArgs<EntityPermission> args, IContentService contentService)
         {
             var entities = contentService.GetByIds(args.SavedEntities.Select(e => e.EntityId)).ToArray();
-            if(entities.Any() == false)
+            if (entities.Any() == false)
             {
                 return;
             }
@@ -161,7 +162,7 @@ namespace Umbraco.Web.Compose
                 .Where(m => m.OriginalPath.Contains(Constants.System.RecycleBinContentString))
                 .Select(m => m.Entity)
                 .ToArray();
-            if(restoredEntities.Any())
+            if (restoredEntities.Any())
             {
                 _notifier.Notify(_actions.GetAction<ActionRestore>(), restoredEntities);
             }
@@ -170,7 +171,7 @@ namespace Umbraco.Web.Compose
         private void PublicAccessServiceSaved(Core.Events.SaveEventArgs<PublicAccessEntry> args, IContentService contentService)
         {
             var entities = contentService.GetByIds(args.SavedEntities.Select(e => e.ProtectedNodeId)).ToArray();
-            if(entities.Any() == false)
+            if (entities.Any() == false)
             {
                 return;
             }
@@ -187,7 +188,7 @@ namespace Umbraco.Web.Compose
             private readonly INotificationService _notificationService;
             private readonly IUserService _userService;
             private readonly ILocalizedTextService _textService;
-            private readonly IGlobalSettings _globalSettings;
+            private readonly GlobalSettings _globalSettings;
             private readonly ILogger _logger;
 
             /// <summary>
@@ -200,14 +201,21 @@ namespace Umbraco.Web.Compose
             /// <param name="globalSettings"></param>
             /// <param name="contentConfig"></param>
             /// <param name="logger"></param>
-            public Notifier(IUmbracoContextAccessor umbracoContextAccessor, IRequestAccessor requestAccessor, INotificationService notificationService, IUserService userService, ILocalizedTextService textService, IGlobalSettings globalSettings, ILogger logger)
+            public Notifier(
+                IUmbracoContextAccessor umbracoContextAccessor,
+                IRequestAccessor requestAccessor,
+                INotificationService notificationService,
+                IUserService userService,
+                ILocalizedTextService textService,
+                IOptions<GlobalSettings> globalSettings,
+                ILogger logger)
             {
                 _umbracoContextAccessor = umbracoContextAccessor;
                 _requestAccessor = requestAccessor;
                 _notificationService = notificationService;
                 _userService = userService;
                 _textService = textService;
-                _globalSettings = globalSettings;
+                _globalSettings = globalSettings.Value;
                 _logger = logger;
             }
 

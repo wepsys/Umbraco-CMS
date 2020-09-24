@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Umbraco.Core;
-using Umbraco.Core.Configuration.UmbracoSettings;
+using Umbraco.Core.Configuration;
+using Umbraco.Core.Configuration.Models;
 using Umbraco.Core.IO;
 using Umbraco.Core.Logging;
+using Umbraco.Core.Media;
 using Umbraco.Core.Models;
 using Umbraco.Core.PropertyEditors;
 using Umbraco.Core.Services;
@@ -29,26 +32,31 @@ namespace Umbraco.Web.PropertyEditors
     public class ImageCropperPropertyEditor : DataEditor, IMediaUrlGenerator
     {
         private readonly IMediaFileSystem _mediaFileSystem;
-        private readonly IContentSettings _contentSettings;
+        private readonly ContentSettings _contentSettings;
         private readonly IDataTypeService _dataTypeService;
-        private readonly ILocalizationService _localizationService;
         private readonly IIOHelper _ioHelper;
         private readonly UploadAutoFillProperties _autoFillProperties;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ImageCropperPropertyEditor"/> class.
         /// </summary>
-        public ImageCropperPropertyEditor(ILogger logger, IMediaFileSystem mediaFileSystem, IContentSettings contentSettings, IDataTypeService dataTypeService, ILocalizationService localizationService, IIOHelper ioHelper, IShortStringHelper shortStringHelper, ILocalizedTextService localizedTextService)
-            : base(logger, dataTypeService, localizationService, localizedTextService,shortStringHelper)
+        public ImageCropperPropertyEditor(
+            ILogger logger,
+            IMediaFileSystem mediaFileSystem,
+            IOptions<ContentSettings> contentSettings,
+            IDataTypeService dataTypeService,
+            ILocalizationService localizationService,
+            IIOHelper ioHelper,
+            IShortStringHelper shortStringHelper,
+            ILocalizedTextService localizedTextService,
+            UploadAutoFillProperties uploadAutoFillProperties)
+            : base(logger, dataTypeService, localizationService, localizedTextService, shortStringHelper)
         {
             _mediaFileSystem = mediaFileSystem ?? throw new ArgumentNullException(nameof(mediaFileSystem));
-            _contentSettings = contentSettings ?? throw new ArgumentNullException(nameof(contentSettings));
-            _dataTypeService = dataTypeService;
-            _localizationService = localizationService;
-            _ioHelper = ioHelper;
-
-            // TODO: inject?
-            _autoFillProperties = new UploadAutoFillProperties(_mediaFileSystem, logger, _contentSettings);
+            _contentSettings = contentSettings.Value ?? throw new ArgumentNullException(nameof(contentSettings));
+            _dataTypeService = dataTypeService ?? throw new ArgumentNullException(nameof(dataTypeService));
+            _ioHelper = ioHelper ?? throw new ArgumentNullException(nameof(ioHelper));
+            _autoFillProperties = uploadAutoFillProperties ?? throw new ArgumentNullException(nameof(uploadAutoFillProperties));
         }
 
         public bool TryGetMediaPath(string alias, object value, out string mediaPath)

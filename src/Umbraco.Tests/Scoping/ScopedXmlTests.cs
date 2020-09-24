@@ -5,19 +5,20 @@ using Moq;
 using NUnit.Framework;
 using Umbraco.Core;
 using Umbraco.Core.Cache;
-using Umbraco.Web.Composing;
-using Umbraco.Core.Configuration.UmbracoSettings;
+using Umbraco.Core.Configuration.Models;
 using Umbraco.Core.Events;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
 using Umbraco.Core.Services;
 using Umbraco.Core.Services.Implement;
 using Umbraco.Core.Sync;
+using Umbraco.Tests.Common.Builders;
 using Umbraco.Tests.LegacyXmlPublishedCache;
 using Umbraco.Tests.TestHelpers;
 using Umbraco.Tests.Testing;
 using Umbraco.Web;
 using Umbraco.Web.Cache;
+using Umbraco.Web.Composing;
 using Umbraco.Web.PublishedCache;
 
 namespace Umbraco.Tests.Scoping
@@ -44,8 +45,13 @@ namespace Umbraco.Tests.Scoping
 
         protected override void ComposeSettings()
         {
-            Composition.Configs.Add(SettingsForTests.GenerateMockContentSettings);
-            Composition.Configs.Add(SettingsForTests.GenerateMockGlobalSettings);
+            var contentSettings = new ContentSettings();
+            var globalSettings = new GlobalSettings();
+            var userPasswordConfigurationSettings = new UserPasswordConfigurationSettings();
+
+            Composition.Register(x => Microsoft.Extensions.Options.Options.Create(contentSettings));
+            Composition.Register(x => Microsoft.Extensions.Options.Options.Create(globalSettings));
+            Composition.Register(x => Microsoft.Extensions.Options.Options.Create(userPasswordConfigurationSettings));
         }
 
         [TearDown]

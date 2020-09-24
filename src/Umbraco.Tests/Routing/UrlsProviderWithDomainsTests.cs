@@ -4,13 +4,12 @@ using System.Linq;
 using Moq;
 using NUnit.Framework;
 using Umbraco.Core;
-using Umbraco.Core.Configuration;
+using Umbraco.Core.Configuration.Models;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Core.Services;
 using Umbraco.Tests.Common;
 using Umbraco.Tests.LegacyXmlPublishedCache;
-using Umbraco.Tests.TestHelpers;
 using Umbraco.Web;
 using Umbraco.Web.Routing;
 
@@ -178,14 +177,14 @@ namespace Umbraco.Tests.Routing
         [TestCase(10011, "https://domain1.com", false, "/1001-1/")]
         public void Get_Url_SimpleDomain(int nodeId, string currentUrl, bool absolute, string expected)
         {
-            var settings = TestHelpers.SettingsForTests.GenerateMockRequestHandlerSettings();
+            var requestHandlerSettings = new RequestHandlerSettings { AddTrailingSlash = true };
+            var globalSettings = new GlobalSettings { HideTopLevelNodeFromPath = false };
 
-            var globalSettings = Mock.Get(Factory.GetInstance<IGlobalSettings>()); //this will modify the IGlobalSettings instance stored in the container
-            globalSettings.Setup(x => x.HideTopLevelNodeFromPath).Returns(false); // ignored w/domains
-
-            var umbracoContext = GetUmbracoContext("/test", 1111, globalSettings:globalSettings.Object);
+            var umbracoContext = GetUmbracoContext("/test", 1111, globalSettings: globalSettings);
             var umbracoContextAccessor = new TestUmbracoContextAccessor(umbracoContext);
-            var urlProvider = new DefaultUrlProvider(settings, Logger, globalSettings.Object,
+            var urlProvider = new DefaultUrlProvider(Microsoft.Extensions.Options.Options.Create(requestHandlerSettings),
+                Logger,
+                Microsoft.Extensions.Options.Options.Create(globalSettings),
                 new SiteDomainHelper(), umbracoContextAccessor, UriUtility);
             var publishedUrlProvider = GetPublishedUrlProvider(umbracoContext, urlProvider);
 
@@ -212,14 +211,14 @@ namespace Umbraco.Tests.Routing
         [TestCase(10011, "https://domain1.com", false, "http://domain1.com/foo/1001-1/")]
         public void Get_Url_SimpleWithSchemeAndPath(int nodeId, string currentUrl, bool absolute, string expected)
         {
-            var settings = TestHelpers.SettingsForTests.GenerateMockRequestHandlerSettings();
+            var requestHandlerSettings = new RequestHandlerSettings { AddTrailingSlash = true };
+            var globalSettings = new GlobalSettings { HideTopLevelNodeFromPath = false };
 
-            var globalSettings = Mock.Get(Factory.GetInstance<IGlobalSettings>()); //this will modify the IGlobalSettings instance stored in the container
-            globalSettings.Setup(x => x.HideTopLevelNodeFromPath).Returns(false); // ignored w/domains
-
-            var umbracoContext = GetUmbracoContext("/test", 1111, globalSettings:globalSettings.Object);
+            var umbracoContext = GetUmbracoContext("/test", 1111, globalSettings: globalSettings);
             var umbracoContextAccessor = new TestUmbracoContextAccessor(umbracoContext);
-            var urlProvider = new DefaultUrlProvider(settings, Logger, globalSettings.Object,
+            var urlProvider = new DefaultUrlProvider(Microsoft.Extensions.Options.Options.Create(requestHandlerSettings),
+                Logger,
+                Microsoft.Extensions.Options.Options.Create(globalSettings),
                 new SiteDomainHelper(), umbracoContextAccessor, UriUtility);
             var publishedUrlProvider = GetPublishedUrlProvider(umbracoContext, urlProvider);
 
@@ -238,14 +237,14 @@ namespace Umbraco.Tests.Routing
         [TestCase(1002, "http://domain1.com", false, "/1002/")]
         public void Get_Url_DeepDomain(int nodeId, string currentUrl, bool absolute, string expected)
         {
-            var settings = TestHelpers.SettingsForTests.GenerateMockRequestHandlerSettings();
+            var requestHandlerSettings = new RequestHandlerSettings { AddTrailingSlash = true };
+            var globalSettings = new GlobalSettings { HideTopLevelNodeFromPath = false };
 
-            var globalSettings = Mock.Get(Factory.GetInstance<IGlobalSettings>()); //this will modify the IGlobalSettings instance stored in the container
-            globalSettings.Setup(x => x.HideTopLevelNodeFromPath).Returns(false); // ignored w/domains
-
-            var umbracoContext = GetUmbracoContext("/test", 1111, globalSettings:globalSettings.Object);
+            var umbracoContext = GetUmbracoContext("/test", 1111, globalSettings: globalSettings);
             var umbracoContextAccessor = new TestUmbracoContextAccessor(umbracoContext);
-            var urlProvider = new DefaultUrlProvider(settings, Logger, globalSettings.Object,
+            var urlProvider = new DefaultUrlProvider(Microsoft.Extensions.Options.Options.Create(requestHandlerSettings),
+                Logger,
+                Microsoft.Extensions.Options.Options.Create(globalSettings),
                 new SiteDomainHelper(), umbracoContextAccessor, UriUtility);
             var publishedUrlProvider = GetPublishedUrlProvider(umbracoContext, urlProvider);
 
@@ -270,14 +269,15 @@ namespace Umbraco.Tests.Routing
         [TestCase(100321, "http://domain3.com", false, "/fr/1003-2-1/")]
         public void Get_Url_NestedDomains(int nodeId, string currentUrl, bool absolute, string expected)
         {
-            var settings = TestHelpers.SettingsForTests.GenerateMockRequestHandlerSettings();
+            var requestHandlerSettings = new RequestHandlerSettings { AddTrailingSlash = true };
+            var globalSettings = new GlobalSettings { HideTopLevelNodeFromPath = false };
 
-            var globalSettings = Mock.Get(Factory.GetInstance<IGlobalSettings>()); //this will modify the IGlobalSettings instance stored in the container
-            globalSettings.Setup(x => x.HideTopLevelNodeFromPath).Returns(false); // ignored w/domains
-
-            var umbracoContext = GetUmbracoContext("/test", 1111, globalSettings:globalSettings.Object);
+            var umbracoContext = GetUmbracoContext("/test", 1111, globalSettings: globalSettings);
             var umbracoContextAccessor = new TestUmbracoContextAccessor(umbracoContext);
-            var urlProvider = new DefaultUrlProvider(settings, Logger, globalSettings.Object,
+            var urlProvider = new DefaultUrlProvider(
+                Microsoft.Extensions.Options.Options.Create(requestHandlerSettings),
+                Logger,
+                Microsoft.Extensions.Options.Options.Create(globalSettings),
                 new SiteDomainHelper(), umbracoContextAccessor, UriUtility);
             var publishedUrlProvider = GetPublishedUrlProvider(umbracoContext, urlProvider);
 
@@ -292,14 +292,15 @@ namespace Umbraco.Tests.Routing
         [Test]
         public void Get_Url_DomainsAndCache()
         {
-            var settings = TestHelpers.SettingsForTests.GenerateMockRequestHandlerSettings();
+            var requestHandlerSettings = new RequestHandlerSettings { AddTrailingSlash = true };
+            var globalSettings = new GlobalSettings { HideTopLevelNodeFromPath = false };
 
-            var globalSettings = Mock.Get(Factory.GetInstance<IGlobalSettings>()); //this will modify the IGlobalSettings instance stored in the container
-            globalSettings.Setup(x => x.HideTopLevelNodeFromPath).Returns(false); // ignored w/domains
-
-            var umbracoContext = GetUmbracoContext("/test", 1111, globalSettings:globalSettings.Object);
+            var umbracoContext = GetUmbracoContext("/test", 1111, globalSettings: globalSettings);
             var umbracoContextAccessor = new TestUmbracoContextAccessor(umbracoContext);
-            var urlProvider = new DefaultUrlProvider(settings, Logger, globalSettings.Object,
+            var urlProvider = new DefaultUrlProvider(
+                Microsoft.Extensions.Options.Options.Create(requestHandlerSettings),
+                Logger,
+                Microsoft.Extensions.Options.Options.Create(globalSettings),
                 new SiteDomainHelper(), umbracoContextAccessor, UriUtility);
             var publishedUrlProvider = GetPublishedUrlProvider(umbracoContext, urlProvider);
 
@@ -356,14 +357,15 @@ namespace Umbraco.Tests.Routing
         [Test]
         public void Get_Url_Relative_Or_Absolute()
         {
-            var settings = TestHelpers.SettingsForTests.GenerateMockRequestHandlerSettings();
+            var requestHandlerSettings = new RequestHandlerSettings { AddTrailingSlash = true };
+            var globalSettings = new GlobalSettings { HideTopLevelNodeFromPath = false };
 
-            var globalSettings = Mock.Get(Factory.GetInstance<IGlobalSettings>()); //this will modify the IGlobalSettings instance stored in the container
-            globalSettings.Setup(x => x.HideTopLevelNodeFromPath).Returns(false); // ignored w/domains
-
-            var umbracoContext = GetUmbracoContext("http://domain1.com/test", 1111, globalSettings:globalSettings.Object);
+            var umbracoContext = GetUmbracoContext("http://domain1.com/test", 1111, globalSettings: globalSettings);
             var umbracoContextAccessor = new TestUmbracoContextAccessor(umbracoContext);
-            var urlProvider = new DefaultUrlProvider(settings, Logger, globalSettings.Object,
+            var urlProvider = new DefaultUrlProvider(
+                Microsoft.Extensions.Options.Options.Create(requestHandlerSettings),
+                Logger,
+                Microsoft.Extensions.Options.Options.Create(globalSettings),
                 new SiteDomainHelper(), umbracoContextAccessor, UriUtility);
             var publishedUrlProvider = GetPublishedUrlProvider(umbracoContext, urlProvider);
 
@@ -381,14 +383,15 @@ namespace Umbraco.Tests.Routing
         [Test]
         public void Get_Url_Alternate()
         {
-            var settings = TestHelpers.SettingsForTests.GenerateMockRequestHandlerSettings();
+            var requestHandlerSettings = new RequestHandlerSettings { AddTrailingSlash = true };
+            var globalSettings = new GlobalSettings { HideTopLevelNodeFromPath = false };
 
-            var globalSettings = Mock.Get(Factory.GetInstance<IGlobalSettings>()); //this will modify the IGlobalSettings instance stored in the container
-            globalSettings.Setup(x => x.HideTopLevelNodeFromPath).Returns(false); // ignored w/domains
-
-            var umbracoContext = GetUmbracoContext("http://domain1.com/en/test", 1111, globalSettings:globalSettings.Object);
+            var umbracoContext = GetUmbracoContext("http://domain1.com/en/test", 1111, globalSettings: globalSettings);
             var umbracoContextAccessor = new TestUmbracoContextAccessor(umbracoContext);
-            var urlProvider = new DefaultUrlProvider(settings, Logger, globalSettings.Object,
+            var urlProvider = new DefaultUrlProvider(
+                Microsoft.Extensions.Options.Options.Create(requestHandlerSettings),
+                Logger,
+                Microsoft.Extensions.Options.Options.Create(globalSettings),
                 new SiteDomainHelper(), umbracoContextAccessor, UriUtility);
             var publishedUrlProvider = GetPublishedUrlProvider(umbracoContext, urlProvider);
 
@@ -408,9 +411,10 @@ namespace Umbraco.Tests.Routing
 
         private IPublishedUrlProvider GetPublishedUrlProvider(IUmbracoContext umbracoContext, DefaultUrlProvider urlProvider)
         {
+            var webRoutingSettings = new WebRoutingSettings();
             return new UrlProvider(
                 new TestUmbracoContextAccessor(umbracoContext),
-                TestHelper.WebRoutingSettings,
+                Microsoft.Extensions.Options.Options.Create(webRoutingSettings),
                 new UrlProviderCollection(new []{urlProvider}),
                 new MediaUrlProviderCollection(Enumerable.Empty<IMediaUrlProvider>()),
                 Mock.Of<IVariationContextAccessor>()

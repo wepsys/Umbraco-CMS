@@ -1,23 +1,21 @@
 ﻿using System;
 using System.Globalization;
-using System.Linq;
 using System.Web.Mvc;
 using System.Web.Routing;
 using Moq;
 using NUnit.Framework;
 using Umbraco.Core;
 using Umbraco.Core.Cache;
-using Umbraco.Web.Composing;
-using Umbraco.Core.Configuration.UmbracoSettings;
+using Umbraco.Core.Configuration.Models;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Core.Services;
-using Umbraco.Core.Strings;
+using Umbraco.Tests.Common;
 using Umbraco.Tests.LegacyXmlPublishedCache;
 using Umbraco.Tests.TestHelpers;
 using Umbraco.Tests.Testing;
-using Umbraco.Tests.Common;
 using Umbraco.Web;
+using Umbraco.Web.Composing;
 using Umbraco.Web.Models;
 using Umbraco.Web.Mvc;
 using Umbraco.Web.Routing;
@@ -387,7 +385,8 @@ namespace Umbraco.Tests.Web.Mvc
         {
             var umbracoContext = GetUmbracoContext("/dang", 0);
 
-            var publishedRouter = BaseWebTest.CreatePublishedRouter(TestHelpers.SettingsForTests.GenerateMockWebRoutingSettings());
+            var webRoutingSettings = new WebRoutingSettings();
+            var publishedRouter = BaseWebTest.CreatePublishedRouter(webRoutingSettings);
             var frequest = publishedRouter.CreateRequest(umbracoContext,  new Uri("http://localhost/dang"));
 
             frequest.Culture = CultureInfo.InvariantCulture;
@@ -438,7 +437,7 @@ namespace Umbraco.Tests.Web.Mvc
             var ctx = new UmbracoContext(
                 httpContextAccessor,
                 _service,
-                Mock.Of<IWebSecurity>(),
+                Mock.Of<IBackofficeSecurity>(),
                 globalSettings,
                 HostingEnvironment,
                 new TestVariationContextAccessor(),
