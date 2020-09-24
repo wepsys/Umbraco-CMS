@@ -23,7 +23,7 @@
                   the latter would pick anything below 3.0.0 and that includes prereleases such as 3.0.0-alpha, and we do
                   not want this to happen as the alpha of the next major is, really, the next major already.
                 -->
-                <dependency id="UmbracoCms.Core" version="[$version$]" />
+                <dependency id="Umbraco.Cms.Core" version="[$version$]" />
                 <dependency id="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" version="[5.0.0-rc.1.20451.17,5.999999)" />
                 <dependency id="Serilog.AspNetCore" version="[3.2.0,3.999999)" />
                 <dependency id="Microsoft.AspNetCore.Mvc.NewtonsoftJson" version="[5.0.0-rc.1.20451.17,5.999999)" />
