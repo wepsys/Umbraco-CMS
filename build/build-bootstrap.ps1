@@ -23,7 +23,9 @@
   $cache = 4
   $nuget = "$scriptTemp\nuget.exe"
   # ensure the correct NuGet-source is used. This one is used by Umbraco
-  $nugetsourceUmbraco = "https://www.myget.org/F/umbracocore/api/v3/index.json"
+  
+  # TODO use this feed only until https://github.com/umbraco/Umbraco-Build/tree/feature/nugetverify-support-contitions-on-item-groups is merged and released
+  $nugetsourceUmbraco = "https://www.myget.org/F/umbracoprereleases/api/v3/index.json"
   if (-not $local)
   {
     $source = "https://dist.nuget.org/win-x86-commandline/latest/nuget.exe"
