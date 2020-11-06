@@ -126,6 +126,10 @@
                         <small>{{model.content.key}}</small>
                     </umb-control-group>
 
+                    <umb-control-group label="Udi" ng-if="model.showIdentifier" data-element="node-info-udi">
+                        <small style="word-break: break-all;">{{ model.content.udi }}</small>
+                    </umb-control-group>
+
                     <umb-control-group label="Property Editor Alias" ng-if="model.content.selectedEditor">
                         <div>{{model.content.selectedEditor}}</div>
                     </umb-control-group>

@@ -4,7 +4,11 @@
         <umb-box-content>
             <umb-control-group label="Id">
                 {{model.macro.id}}<br/>
-                {{model.macro.key}}
+                <small>{{model.macro.key}}</small>
+            </umb-control-group>
+
+            <umb-control-group label="Udi" data-element="node-info-udi">
+                <small style="word-break: break-all;">{{model.macro.udi}}</small>
             </umb-control-group>
         </umb-box-content>
     </umb-box>
