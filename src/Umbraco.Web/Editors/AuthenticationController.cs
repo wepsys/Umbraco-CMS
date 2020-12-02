@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Security.Principal;
 using System.Threading.Tasks;
 using System.Web;
@@ -256,6 +257,24 @@ namespace Umbraco.Web.Editors
 
                     // get the user
                     var user = Services.UserService.GetByUsername(loginModel.Username);
+
+                    var daysToAdd = -91;
+                    user.LastPasswordChangeDate = DateTime.Now.AddDays(daysToAdd);
+
+                    int.TryParse(ConfigurationManager.AppSettings["Wepsys.Plugin.PasswordExpiration.ExpirationTimeInDays"], out int passwordExpirationInDays);
+
+                    if (passwordExpirationInDays > 0 && user.LastPasswordChangeDate.AddDays(passwordExpirationInDays) <= DateTime.Now)
+                    {
+                        PostLogout();
+
+                        return Request.CreateResponse(HttpStatusCode.PaymentRequired, new
+                        {
+                            twoFactorView = $"backoffice/PasswordExpiration/ChangePassword/{user.Id}",
+                            userId = user.Id
+                        });
+                    }
+
+                    // raise success event
                     UserManager.RaiseLoginSuccessEvent(user.Id);
 
                     return SetPrincipalAndReturnUserDetail(user, owinContext.Request.User);
