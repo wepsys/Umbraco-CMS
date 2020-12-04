@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.ComponentModel.DataAnnotations;
-using System.Configuration;
+﻿using System.Configuration;
 using System.Linq;
-using System.Net.Mime;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Mvc;
+using System.Web.Security;
 using Microsoft.AspNet.Identity;
 using Umbraco.Core;
 using Umbraco.Core.Composing;
@@ -58,8 +54,7 @@ namespace Wepsys.Plugin.PasswordExpiration
 
             var found = Services.UserService.GetUserById(changingPasswordModel.Id);
 
-            var membersipProvider = new UsersMembershipProvider();
-            membersipProvider.Initialize("UsersMembershipProvider", new NameValueCollection());
+            var membersipProvider = (UsersMembershipProvider)MembershipProviderExtensions.GetUsersMembershipProvider();
 
             var store = new BackOfficeUserStore(Services.UserService, Services.MemberTypeService,
                 Services.EntityService, Services.ExternalLoginService, GlobalSettings, membersipProvider,
@@ -83,13 +78,20 @@ namespace Wepsys.Plugin.PasswordExpiration
             int minPasswordLength = membersipProvider.MinRequiredPasswordLength;
 
             var newPasswordVerificationResult = IsPasswordValid(changingPasswordModel.NewPassword,
-                minAlpanumeric == 0 ? membersipProvider.DefaultMinNonAlphanumericChars : minAlpanumeric,
+                minAlpanumeric == default ? membersipProvider.DefaultMinNonAlphanumericChars : minAlpanumeric,
                 membersipProvider.PasswordStrengthRegularExpression,
-                minPasswordLength == 0 ? membersipProvider.DefaultMinPasswordLength : minPasswordLength);
+                minPasswordLength == default ? membersipProvider.DefaultMinPasswordLength : minPasswordLength);
 
             if (!newPasswordVerificationResult.Success)
             {
                 result.Errors.Add(newPasswordVerificationResult.Result);
+
+                return Json(result, "application/json");
+            }
+
+            if (changingPasswordModel.NewPassword.Equals(changingPasswordModel.OldPassword))
+            {
+                result.Errors.Add("Su nueva contraseña no puede ser igual a su contraseña antigua.");
 
                 return Json(result, "application/json");
             }
@@ -99,7 +101,10 @@ namespace Wepsys.Plugin.PasswordExpiration
 
             if (passwordChangeResult.Success)
             {
-                result.SuccessRedirectUrl = "/content";
+                // Log the user in
+                FormsAuthentication.SetAuthCookie(found.Username, true);
+
+                result.SuccessRedirectUrl = "/umbraco/#/login";
 
                 return Json(result, "application/json");
             }

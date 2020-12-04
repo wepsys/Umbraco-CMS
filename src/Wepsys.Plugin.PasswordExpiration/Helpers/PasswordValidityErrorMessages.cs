@@ -7,9 +7,9 @@ namespace Wepsys.Plugin.PasswordExpiration.Helpers
     {
         internal static Dictionary<PasswordValidityError, string> ErrorMessages { get; set; } = new Dictionary<PasswordValidityError, string>
         {
-            { PasswordValidityError.Length, "Su nueva contraseña debe tener al menos {0} caracteres." },
+            { PasswordValidityError.Length, "Su nueva contraseña debe tener al menos {0} o más caracteres." },
             { PasswordValidityError.Strength, "Su nueva contraseña es muy débil, ingrese al menos una letra mayúscula y un número." },
-            { PasswordValidityError.AlphanumericChars, "Su nueva contraseña debe contener al menos {0} caracteres alfanuméricos." }
+            { PasswordValidityError.AlphanumericChars, "Su nueva contraseña debe contener al menos {0} o más caracteres no alfanuméricos." }
         };
     }
 }
