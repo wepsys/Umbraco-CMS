@@ -258,9 +258,6 @@ namespace Umbraco.Web.Editors
                     // get the user
                     var user = Services.UserService.GetByUsername(loginModel.Username);
 
-                    //var daysToAdd = -91;
-                    //user.LastPasswordChangeDate = DateTime.Now.AddDays(daysToAdd);
-
                     int.TryParse(ConfigurationManager.AppSettings["Wepsys.Plugin.PasswordExpiration.ExpirationTimeInDays"], out int passwordExpirationInDays);
 
                     if (passwordExpirationInDays > 0 && user.LastPasswordChangeDate.AddDays(passwordExpirationInDays) <= DateTime.Now)
